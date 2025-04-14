@@ -1,0 +1,43 @@
+{
+  "name": "finance-tracker",
+  "version": "1.0.0",
+  "description": "Personal Finance Tracker mobile application that enables users to manage their income, expenses, and budgets on the go. This project must include a mobile frontend and a backend API that supports core functionalities.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "build": "echo \"Building the project...\"",
+    "lint": "echo \"Linting the project...\"",
+    "format": "echo \"Formatting the project...\"",
+    "deploy": "echo \"Deploying the project...\"",
+    "clean": "echo \"Cleaning the project...\"",
+    "install": "echo \"Installing dependencies...\"",
+    "update": "echo \"Updating dependencies...\"",
+    "test:unit": "echo \"Running unit tests...\"",
+    "test:integration": "echo \"Running integration tests...\"",
+    "test:e2e": "echo \"Running end-to-end tests...\"",
+    "test:coverage": "echo \"Running test coverage...\"",
+    "test:watch": "echo \"Watching for changes...\"",
+    "test:debug": "echo \"Debugging tests...\""
+  },
+  "author": "Anirban Paira",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.13.1",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.10.0",
+    "nodemon": "^3.1.9",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "passport-local": "^1.0.0"
+  }
+}
