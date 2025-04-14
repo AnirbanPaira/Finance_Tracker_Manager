@@ -1,10 +1,13 @@
 import { Link, router } from 'expo-router';
-import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, View, Text, TouchableOpacity, ActivityIndicator, Image, Dimensions } from 'react-native';
 import { useAuth } from '../../hooks/useAuth';
 import { useEffect } from 'react';
+import LoginScreen from './login';
 
 export default function LandingPage() {
   const { user, loading } = useAuth();
+  const windowWidth = Dimensions.get('window').width;
+  const windowHeight = Dimensions.get('window').height;
 
   useEffect(() => {
     if (user && !loading) {
@@ -19,26 +22,42 @@ export default function LandingPage() {
       </View>
     );
   }
-
+  
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome to Finance Tracker</Text>
-      <Text style={styles.subtitle}>Manage your finances with ease</Text>
-      
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity 
-          style={styles.button}
-          onPress={() => router.push('/(auth)/login')}
-        >
-          <Text style={styles.buttonText}>Login</Text>
-        </TouchableOpacity>
+      {/* Left Half - Text and Buttons */}
+      <View style={styles.leftSection}>
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>Welcome to Finance Tracker</Text>
+          <Text style={styles.subtitle}>Manage your finances with ease</Text>
+        </View>
         
-        <TouchableOpacity 
-          style={[styles.button, styles.registerButton]}
-          onPress={() => router.push('/(auth)/register')}
-        >
-          <Text style={[styles.buttonText, styles.registerButtonText]}>Register</Text>
-        </TouchableOpacity>
+        <Image 
+          source={require('../../assets/images/financeLogo.png')}
+          style={styles.imageLeft}
+          resizeMode="contain"
+        />
+        
+        <View style={styles.buttonRow}>
+          <TouchableOpacity 
+            style={[styles.button, styles.loginButton]}
+            onPress={() => router.push('/(auth)/login')}
+          >
+            <Text style={styles.loginButtonText}>Login</Text>
+          </TouchableOpacity>
+          
+          <TouchableOpacity 
+            style={[styles.button, styles.registerButton]}
+            onPress={() => router.push('/(auth)/register')}
+          >
+            <Text style={styles.registerButtonText}>Register</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      
+      {/* Right Half - Image */}
+      <View style={styles.rightSection}>
+        <LoginScreen />
       </View>
     </View>
   );
@@ -47,9 +66,7 @@ export default function LandingPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
+    flexDirection: 'row',
     backgroundColor: '#fff',
   },
   loadingContainer: {
@@ -58,9 +75,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#fff',
   },
+  leftSection: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e3f6ff',
+    borderTopRightRadius: 20,
+    borderBottomRightRadius: 20,
+  },
+  rightSection: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+    maxWidth: 400,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
+    marginTop: 20,
     marginBottom: 10,
     textAlign: 'center',
     color: '#000',
@@ -68,21 +106,35 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 16,
     color: '#666',
-    marginBottom: 40,
     textAlign: 'center',
   },
-  buttonContainer: {
+  imageLeft: {
+    width: Dimensions.get('window').width - 20,
+    height: Dimensions.get('window').height -320,
+    marginVertical: 20,
+  },
+  imageRight: {
+    width: '80%',
+    height: '80%',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     width: '100%',
-    maxWidth: 300,
+    marginTop: 20,
   },
   button: {
-    backgroundColor: '#007AFF',
+    flex: 1,
     padding: 15,
     borderRadius: 8,
-    marginBottom: 15,
+    marginHorizontal: 8,
     alignItems: 'center',
+    maxWidth: 140,
   },
-  buttonText: {
+  loginButton: {
+    backgroundColor: '#142e48',
+  },
+  loginButtonText: {
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
@@ -90,9 +142,11 @@ const styles = StyleSheet.create({
   registerButton: {
     backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#007AFF',
+    borderColor: '#142e48',
   },
   registerButtonText: {
-    color: '#007AFF',
+    color: '#142e48',
+    fontSize: 16,
+    fontWeight: '600',
   },
-}); 
+});

@@ -164,11 +164,11 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   forgotPasswordText: {
-    color: '#007AFF',
+    color: '#142e48',
     fontSize: 14,
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#142e48',
     height: 50,
     borderRadius: 8,
     justifyContent: 'center',
@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     color: '#666',
   },
   registerLink: {
-    color: '#007AFF',
+    color: '#142e48',
     fontWeight: 'bold',
   },
   errorText: {
