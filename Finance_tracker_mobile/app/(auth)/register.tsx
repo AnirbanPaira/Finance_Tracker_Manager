@@ -9,11 +9,14 @@ import {
   Platform,
   ActivityIndicator,
 } from 'react-native';
-import { Link, router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/useAuth';
 
-export default function RegisterScreen() {
+interface RegisterScreenProps {
+  onSwitchToLogin: () => void;
+}
+
+export default function RegisterScreen({ onSwitchToLogin }: RegisterScreenProps) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,7 +36,6 @@ export default function RegisterScreen() {
       setLoading(true);
       setError('');
       await register(name, email, password);
-      router.replace('/(tabs)');
     } catch (err: any) {
       setError(err.message || 'Registration failed');
     } finally {
@@ -113,11 +115,9 @@ export default function RegisterScreen() {
 
         <View style={styles.loginContainer}>
           <Text style={styles.loginText}>Already have an account? </Text>
-          <Link href="/(auth)/login" asChild>
-            <TouchableOpacity>
-              <Text style={styles.loginLink}>Sign In</Text>
-            </TouchableOpacity>
-          </Link>
+          <TouchableOpacity onPress={onSwitchToLogin}>
+            <Text style={styles.loginLink}>Sign In</Text>
+          </TouchableOpacity>
         </View>
       </View>
     </KeyboardAvoidingView>
@@ -129,23 +129,28 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
     padding: 20,
+    width: '100%',
+    justifyContent: 'center',
   },
   header: {
-    marginTop: 60,
-    marginBottom: 40,
+    marginBottom: 30,
+    alignItems: 'center',
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#333',
+    color: '#142e48',
+    marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
     color: '#666',
-    marginTop: 8,
+    textAlign: 'center',
   },
   form: {
-    flex: 1,
+    width: '100%',
+    maxWidth: 400,
+    alignSelf: 'center',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -155,6 +160,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 16,
     paddingHorizontal: 12,
+    backgroundColor: '#f8f9fa',
   },
   inputIcon: {
     marginRight: 10,
@@ -163,12 +169,13 @@ const styles = StyleSheet.create({
     flex: 1,
     height: 50,
     fontSize: 16,
+    color: '#333',
   },
   eyeIcon: {
     padding: 10,
   },
   button: {
-    backgroundColor: '#007AFF',
+    backgroundColor: '#142e48',
     height: 50,
     borderRadius: 8,
     justifyContent: 'center',
@@ -186,18 +193,22 @@ const styles = StyleSheet.create({
   loginContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 'auto',
+    marginTop: 20,
   },
   loginText: {
     color: '#666',
   },
   loginLink: {
-    color: '#007AFF',
+    color: '#142e48',
     fontWeight: 'bold',
   },
   errorText: {
-    color: 'red',
+    color: '#dc3545',
     marginBottom: 16,
     textAlign: 'center',
+    backgroundColor: '#f8d7da',
+    padding: 10,
+    borderRadius: 8,
+    fontSize: 14,
   },
 }); 
