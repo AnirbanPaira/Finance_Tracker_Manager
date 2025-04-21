@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -8,26 +8,17 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../hooks/useAuth';
 import { useTheme } from '../../context/ThemeContext';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import * as WebBrowser from 'expo-web-browser';
+import * as AuthSession from 'expo-auth-session';
+import * as Google from 'expo-auth-session/providers/google';
 
-interface GoogleUser {
-  id: string;
-  name: string;
-  givenName: string;
-  familyName: string;
-  email: string;
-  photo: string;
-}
-
-interface GoogleSignInResponse {
-  user: GoogleUser;
-  idToken: string;
-  serverAuthCode: string;
-}
+// Configure WebBrowser for Auth
+WebBrowser.maybeCompleteAuthSession();
 
 interface RegisterScreenProps {
   onSwitchToLogin: () => void;
@@ -44,44 +35,68 @@ export default function RegisterScreen({ onSwitchToLogin }: RegisterScreenProps)
 
   const { register } = useAuth();
 
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: 'YOUR_WEB_CLIENT_ID', // Replace with your web client ID from Google Cloud Console
-    });
-  }, []);
+  // Google Auth Setup
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+    iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+    androidClientId: process.env.EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+    webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+  });
+
+  // Handle Google Sign In Response
+  React.useEffect(() => {
+    handleGoogleResponse();
+  }, [response]);
+
+  const handleGoogleResponse = async () => {
+    if (response?.type === 'success') {
+      setLoading(true);
+      try {
+        // Exchange the code for an access token
+        const { authentication } = response;
+        
+        if (!authentication?.accessToken) {
+          throw new Error('No access token received');
+        }
+        
+        // Fetch user info with the access token
+        const userInfoResponse = await fetch(
+          'https://www.googleapis.com/userinfo/v2/me',
+          {
+            headers: { Authorization: `Bearer ${authentication.accessToken}` },
+          }
+        );
+        
+        const userInfo = await userInfoResponse.json();
+        
+        if (userInfo.error) {
+          throw new Error(userInfo.error.message || 'Failed to get user info');
+        }
+        
+        // Register the user with your backend
+        await register(
+          userInfo.name || '',
+          userInfo.email,
+          'google-oauth'
+        );
+        
+      } catch (err: any) {
+        console.error('Google auth error:', err);
+        setError(err.message || 'Google authentication failed');
+      } finally {
+        setLoading(false);
+      }
+    } else if (response?.type === 'error') {
+      setError('Google Sign-In failed: ' + response.error?.message || 'Unknown error');
+    }
+  };
 
   const handleGoogleSignIn = async () => {
     try {
-      setLoading(true);
       setError('');
-      
-      await GoogleSignin.hasPlayServices();
-      const result = (await GoogleSignin.signIn() as unknown) as GoogleSignInResponse;
-      
-      if (result && result.user) {
-        // Here you can handle the user info and register the user
-        // You might want to send this to your backend
-        console.log('Google Sign-In successful:', result);
-        
-        // Call your register function with Google user info
-        await register(
-          result.user.givenName || result.user.name || '',
-          result.user.email,
-          'google-oauth'
-        );
-      }
-    } catch (error: any) {
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        setError('Sign in was cancelled');
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        setError('Sign in is in progress');
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        setError('Play services not available');
-      } else {
-        setError(error.message || 'Google Sign-In failed');
-      }
-    } finally {
-      setLoading(false);
+      await promptAsync();
+    } catch (err: any) {
+      setError(err.message || 'Google Sign-In failed');
     }
   };
 
@@ -198,7 +213,7 @@ export default function RegisterScreen({ onSwitchToLogin }: RegisterScreenProps)
         <TouchableOpacity
           style={[styles.googleButton, { backgroundColor: colors.card }]}
           onPress={handleGoogleSignIn}
-          disabled={loading}
+          disabled={loading || !request}
         >
           <Ionicons name="logo-google" size={20} color={colors.text} style={styles.googleIcon} />
           <Text style={[styles.googleButtonText, { color: colors.text }]}>Sign up with Google</Text>
@@ -316,4 +331,4 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-}); 
+});
